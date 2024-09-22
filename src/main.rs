@@ -1,4 +1,4 @@
-use catalyst::commands::collections::args::CollectionsCommands;
+use catalyst::commands::{collections::args::CollectionsCommands, run::args::RunCommands};
 use clap::{Parser, Subcommand};
 
 #[derive(Parser, Debug)]
@@ -10,10 +10,13 @@ struct Args {
 
 #[derive(Subcommand, Debug, Clone)]
 enum Commands {
-    Run,
+    Run {
+        #[command(subcommand)]
+        cmd: RunCommands
+    },
     Collections {
         #[command(subcommand)]
-        cmd: CollectionsCommands,   
+        cmd: CollectionsCommands,
     }
 }
 
