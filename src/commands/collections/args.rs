@@ -9,7 +9,10 @@ pub enum CollectionsCommands {
         name: String,
     },
     Delete {
-        name: String,
-        id: String,
+        #[clap(hide(true))]
+        check: Option<String>,
+
+        name: Option<String>,
+        id: Option<String>,
     },
 }
