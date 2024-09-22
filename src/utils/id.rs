@@ -2,6 +2,8 @@ use std::collections::HashMap;
 use rand::{distributions::Alphanumeric, Rng};
 
 
+static CID_TYPES_STR: &str = "cre";
+
 pub enum CIDTypes {
     Collection,
     Run,
@@ -16,6 +18,7 @@ impl CIDTypes {
             CIDTypes::Endpoint => "e",
         }
     }
+
 }
 
 impl Clone for CIDTypes {
@@ -66,5 +69,67 @@ impl CIDStore {
                 return formatted_cid;
             }
         }
+    }
+}
+
+pub fn validate_cid(cid_to_check: &str) -> bool {
+    if cid_to_check.len() != 9 {
+        return false;
+    }
+
+    let mut chars = cid_to_check.chars();
+
+    
+    match chars.next() {
+        Some(c) if CID_TYPES_STR.contains(c) => (),
+        _ => return false,
+    };
+
+    
+    if chars.next() != Some(':') {
+        return false;
+    }
+
+    let noise = chars.as_str();
+    noise.len() == 7 && noise.chars().all(char::is_alphanumeric)
+}
+
+
+#[cfg(test)]
+mod tests {
+    // Bring validate_cid into the scope of the tests module
+    use super::validate_cid;
+
+    #[test]
+    fn test_valid_cid() {
+        assert!(validate_cid("c:abcdefg"));
+        assert!(validate_cid("r:1234567"));
+        assert!(validate_cid("e:ABCDEFG"));
+    }
+
+    #[test]
+    fn test_invalid_length() {
+        assert!(!validate_cid("c:abcd")); 
+        assert!(!validate_cid("c:abcdefgh"));
+    }
+
+    #[test]
+    fn test_invalid_type() {
+        assert!(!validate_cid("x:abcdefg"));
+        assert!(!validate_cid("1:abcdefg"));
+        assert!(!validate_cid("::abcdefg"));
+    }
+
+    #[test]
+    fn test_invalid_separator() {
+        assert!(!validate_cid("c;abcdefg"));
+        assert!(!validate_cid("c abcdefg"));
+    }
+
+    #[test]
+    fn test_invalid_noise() {
+        assert!(!validate_cid("c:abcde*f"));
+        assert!(!validate_cid("c:abcd@ef"));
+        assert!(!validate_cid("c:abcde_f"));
     }
 }
