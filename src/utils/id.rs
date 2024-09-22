@@ -97,7 +97,6 @@ pub fn validate_cid(cid_to_check: &str) -> bool {
 
 #[cfg(test)]
 mod tests {
-    // Bring validate_cid into the scope of the tests module
     use super::validate_cid;
 
     #[test]
