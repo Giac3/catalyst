@@ -78,7 +78,7 @@ pub fn handle_endpoints_commands (cmd: EndpointsCommands) -> Result<(), Error> {
                 json!("No Endpoints")
             };
             let t = json_to_table(&table)
-                .array_orientation(Orientation::Column).object_orientation(Orientation::Row).with(Style::modern())
+                .array_orientation(Orientation::Column).object_orientation(Orientation::Row).with(Style::modern_rounded())
                 .to_string();
             println!("{}", t);
             Ok(())
