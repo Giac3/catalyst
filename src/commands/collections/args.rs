@@ -3,9 +3,11 @@ use clap::Subcommand;
 #[derive(Subcommand, Debug, Clone)]
 pub enum CollectionsCommands {
     List {
+        #[arg(short, long)]
         collection: Option<String>,
     },
     Create {
+        #[arg(short, long)]
         name: String,
     },
     Delete {

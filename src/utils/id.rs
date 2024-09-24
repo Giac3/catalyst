@@ -18,6 +18,14 @@ impl CIDTypes {
             CIDTypes::Endpoint => "e",
         }
     }
+    fn get_type_from_char(type_char: char) -> CIDTypes {
+        match type_char {
+             'c' => CIDTypes::Collection,
+             'r' => CIDTypes::Run,
+             'e' => CIDTypes::Endpoint,
+             _ => panic!("invalid CID type"),
+        }
+    }
 
 }
 
@@ -45,10 +53,17 @@ impl CID {
 }
 
 pub struct CIDStore {
+    has_loaded: bool,
     cids: HashMap<String, CID>,
 }
 
 impl CIDStore {
+    pub fn new () -> CIDStore {
+        return CIDStore {
+            has_loaded: false,
+            cids: HashMap::new()
+        }
+    }
     pub fn new_cid(&mut self, _type: CIDTypes) -> String {
         loop {
             let noise: String = rand::thread_rng()
@@ -70,6 +85,29 @@ impl CIDStore {
             }
         }
     }
+
+    fn cid_from_string(&mut self, cid_str: &String) -> CID {
+        let mut chars = cid_str.chars();
+
+        let _type = CIDTypes::get_type_from_char(chars.next().unwrap());
+        chars.next();
+
+        let noise = chars.as_str().to_string();
+
+        CID { _type, noise }
+
+    }
+
+    pub fn load_cids(&mut self, cids: Vec<String>) {
+        for cid_str in cids {
+            if validate_cid(&cid_str) {
+                let cid = self.cid_from_string(&cid_str);
+                self.cids.insert(cid_str, cid);
+            }
+        }
+        self.has_loaded = true
+    }
+    
 }
 
 pub fn validate_cid(cid_to_check: &str) -> bool {
