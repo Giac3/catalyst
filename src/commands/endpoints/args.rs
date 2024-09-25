@@ -1,8 +1,9 @@
 
-use clap::{Command, Error, Subcommand};
+use clap::{error::ErrorKind, Command, Error, Subcommand};
 
 use serde_json::{json, Value};
 use json_to_table::{json_to_table, Orientation};
+use url::Url;
 use crate::{storage::endpoints::{read, write, Endpoint}, utils::id::{CIDStore, CIDTypes}};
 
 
@@ -84,7 +85,7 @@ pub fn handle_endpoints_commands (cmd: EndpointsCommands) -> Result<(), Error> {
             Ok(())
         }
         EndpointsCommands::Create { method, url, params, headers, body }=> {
-            let mut command = Command::new("Endpoints");
+            let mut command = Command::new("\n\ncatalyst endpoints create -m get -u https://google.com");
             let mut endpoints = read(&mut command)?;
 
             let mut cid_store =  CIDStore::new();     
@@ -94,10 +95,17 @@ pub fn handle_endpoints_commands (cmd: EndpointsCommands) -> Result<(), Error> {
 
             let cid = cid_store.new_cid(CIDTypes::Endpoint);
 
+            let url = match Url::parse(&url) {
+                Ok(url) => url,
+                Err(_) => {
+                    return Err(command.error(ErrorKind::InvalidValue, "Invalid url"));
+                }
+            };
+
             let new_endpoint = Endpoint {
                 id: cid,
                 method: method.get_str().to_string(),
-                url,
+                url: url.to_string(),
                 headers,
                 params,
                 body
